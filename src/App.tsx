@@ -1,57 +1,37 @@
-import React from 'react';
-import logo from './logo.svg';
-import { Counter } from './features/counter/Counter';
-import './App.css';
+import React from "react";
+import styled from "@emotion/styled";
+import { useSelector } from "react-redux";
+
+import { SearchBar } from "./components/search-bar";
+import { Cards } from "./components/cards";
+import { Spinner } from "./components/shared/spinner";
+import { Toast } from "./components/shared/toast";
+import type { RootState } from "./store";
+
+const StyledAppWrapper = styled.div({
+  position: "relative",
+  background: "#f5f5f7",
+});
 
 function App() {
+  const {
+    collection: searchResult,
+    searchType,
+    isLoading,
+    error,
+  } = useSelector((state: RootState) => state.search);
+  const state = useSelector((state) => state);
+  console.log(state);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <Counter />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <span>
-          <span>Learn </span>
-          <a
-            className="App-link"
-            href="https://reactjs.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux
-          </a>
-          <span>, </span>
-          <a
-            className="App-link"
-            href="https://redux-toolkit.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Redux Toolkit
-          </a>
-          ,<span> and </span>
-          <a
-            className="App-link"
-            href="https://react-redux.js.org/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            React Redux
-          </a>
-        </span>
-      </header>
-    </div>
+    <StyledAppWrapper>
+      <SearchBar hasSiblings={!!searchResult.length} />
+      {isLoading && <Spinner />}
+      {!!searchResult.length && (
+        <Cards searchResult={searchResult} searchType={searchType} />
+      )}
+      {error && <Toast message={error} />}
+    </StyledAppWrapper>
   );
 }
 
