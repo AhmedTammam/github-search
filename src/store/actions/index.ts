@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 
 export const fetchSearch = createAsyncThunk(
   "fetchSearch",
@@ -12,5 +12,3 @@ export const fetchSearch = createAsyncThunk(
       });
   }
 );
-
-export const resetSearch = createAction("restSearch");

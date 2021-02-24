@@ -4,9 +4,9 @@ import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
 import { Global, css } from "@emotion/react";
 
-import App from "./App";
 import { persistor, store } from "./store";
 import { Spinner } from "./components/shared/spinner";
+import App from "./App";
 
 ReactDOM.render(
   <React.StrictMode>

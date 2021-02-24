@@ -1,11 +1,7 @@
-import {
-  configureStore,
-  combineReducers,
-  getDefaultMiddleware,
-} from "@reduxjs/toolkit";
+import { configureStore, getDefaultMiddleware } from "@reduxjs/toolkit";
+import logger from "redux-logger";
 import {
   persistStore,
-  persistReducer,
   FLUSH,
   REHYDRATE,
   PAUSE,
@@ -13,26 +9,8 @@ import {
   PURGE,
   REGISTER,
 } from "redux-persist";
-import storage from "redux-persist/lib/storage";
-import logger from "redux-logger";
 
-import searchReducer from "./reducers/searchSlice";
-
-const combinedReducer = combineReducers({
-  search: searchReducer,
-});
-
-// const rootReducer: any = (state: RootState, action: Action) => {
-//   return combinedReducer(state, action);
-// };
-
-const persistConfig = {
-  key: "root",
-  storage,
-  whitelsit: ["search"],
-};
-
-const persistedReducer = persistReducer(persistConfig, combinedReducer);
+import { persistedReducer } from "./reducers";
 
 export const store = configureStore({
   reducer: persistedReducer,
@@ -44,5 +22,3 @@ export const store = configureStore({
 });
 
 export const persistor = persistStore(store);
-
-export type RootState = ReturnType<typeof combinedReducer>;

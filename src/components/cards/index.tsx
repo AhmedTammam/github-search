@@ -8,7 +8,7 @@ import type { UserProps } from "../../types/entities/user";
 import type { RepositoryProps } from "../../types/entities/repositry";
 
 const StyledCardsWrapper = styled.div({
-  margin: "0 auto",
+  margin: "20px auto",
   display: "grid",
   gridTemplateColumns: "1fr 1fr 1fr",
   gridGap: "30px",

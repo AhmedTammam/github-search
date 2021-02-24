@@ -6,7 +6,7 @@ import { SearchBar } from "./components/search-bar";
 import { Cards } from "./components/cards";
 import { Spinner } from "./components/shared/spinner";
 import { Toast } from "./components/shared/toast";
-import type { RootState } from "./store";
+import type { RootState } from "./types/state";
 
 const StyledAppWrapper = styled.div({
   position: "relative",
@@ -20,8 +20,6 @@ function App() {
     isLoading,
     error,
   } = useSelector((state: RootState) => state.search);
-  const state = useSelector((state) => state);
-  console.log(state);
 
   return (
     <StyledAppWrapper>

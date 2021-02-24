@@ -5,15 +5,15 @@ import styled from "@emotion/styled";
 
 import GithubIcon from "./github.svg";
 import { fetchSearch } from "../../store/actions";
-import { restSearch } from "../../store/reducers/searchSlice";
-import type { RootState } from "../../store";
+import { resetSearch, setCachedData } from "../../store/reducers/searchSlice";
+import { useLocalStorage } from "../../helpers";
+import type { RootState } from "../../types/state";
 
 const StyledWrapper = styled.div((props: { hasSiblings: boolean }) => ({
   display: props.hasSiblings ? "block" : "flex",
   justifyContent: "center",
   alignItems: "center",
   height: props.hasSiblings ? "100%" : "100vh",
-  marginBottom: 20,
   padding: props.hasSiblings ? "50px 200px 20px" : 0,
   background: props.hasSiblings ? "lightgrey" : "100vh",
   "@media (max-width: 768px)": {
@@ -74,31 +74,63 @@ const StyledSelect = styled.select({
 });
 
 const SearchBar: FC<{ hasSiblings: boolean }> = ({ hasSiblings }) => {
-  const oldQuery = useSelector((state: RootState) => state.search.query);
   const [query, setQuery] = useState("");
-  const [searchType, setSearchType] = useState("users");
+  const searchType = useSelector((state: RootState) => state.search.searchType);
   const TERM_LENGTH_TO_START_SEARCH = 3;
 
   const dispatch = useDispatch();
+  const localStorage = useLocalStorage();
 
   const handleSearch = useCallback(
     debounce((query, searchType) => {
-      if (query.length >= TERM_LENGTH_TO_START_SEARCH && query !== oldQuery) {
+      const loweredCaseQuery = query.toLowerCase();
+
+      if (loweredCaseQuery.length >= TERM_LENGTH_TO_START_SEARCH) {
+        const cashedData = checkCache(loweredCaseQuery, searchType);
+
+        if (cashedData) {
+          const payload = {
+            query: cashedData.savedQuery,
+            searchType: cashedData.savedSearchType,
+            collection: cashedData.savedCollection,
+            error: cashedData.error,
+          };
+          return dispatch(setCachedData(payload));
+        }
+
         const searchData = {
-          query,
+          query: loweredCaseQuery,
           searchType,
         };
-        dispatch(fetchSearch(searchData));
+        return dispatch(fetchSearch(searchData));
       }
+      return dispatch(resetSearch(searchType));
     }, 1000),
     []
   );
 
+  const checkCache = (searchQuery: string, searchType: string) => {
+    const cachedData = localStorage.getItem("cachedData");
+
+    if (cachedData) {
+      const {
+        savedQuery,
+        savedSearchType,
+        savedCollection,
+        error,
+      } = JSON.parse(cachedData);
+
+      if (searchQuery === savedQuery && searchType === savedSearchType)
+        return { savedQuery, savedSearchType, savedCollection, error };
+    }
+    return false;
+  };
+
   useEffect(() => {
     if (query.length < TERM_LENGTH_TO_START_SEARCH) {
-      dispatch(restSearch());
+      dispatch(resetSearch(searchType));
     }
-  }, [query, dispatch]);
+  }, [query, searchType, dispatch]);
 
   return (
     <StyledWrapper hasSiblings={hasSiblings}>
@@ -127,7 +159,6 @@ const SearchBar: FC<{ hasSiblings: boolean }> = ({ hasSiblings }) => {
             defaultValue={searchType}
             onChange={(e) => {
               const newSearchType = e.target.value;
-              setSearchType(newSearchType);
               handleSearch(query, newSearchType);
             }}
           >
